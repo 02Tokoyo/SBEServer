@@ -9,9 +9,9 @@
     "lint": "eslint ./src/ --ext .js,.jsx,.ts,.tsx & tsc"
   },
   "dependencies": {
-    "address": "^2.0.3",
     "moment-timezone": "^0.5.45",
-    "ws": "^8.18.0"
+    "@script-bridge/protocol": "^0.2.2",
+    "@script-bridge/server": "^0.2.2"
   },
   "devDependencies": {
     "@types/ws": "^8.5.12",

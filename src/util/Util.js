@@ -1,113 +1,76 @@
-const { randomUUID } = require('node:crypto');
-const moment = require('moment-timezone');
+// src/util/Util.js
+const { randomUUID } = require("node:crypto");
+const moment = require("moment-timezone");
 
 class Util {
   static isEmpty(v) {
-    return v === undefined || v === null || v === ''
+    return v === undefined || v === null || v === "";
   }
-  
-  /**
-   * Returns current time with nice format.
-   * @param {string} timezone
-   * @param {string} [mode]
-   */
+
   static getTime(timezone, mode) {
-    const now = moment().tz(timezone);
+    const now = moment().tz(timezone || "UTC");
     switch (mode) {
-      case 'date':
-        return now.format('MM/DD HH:mm:ss');
-      case 'year':
-        return now.format('YYYY MM/DD HH:mm:ss');
-      case 'timestamp':
+      case "date":
+        return now.format("MM/DD HH:mm:ss");
+      case "year":
+        return now.format("YYYY MM/DD HH:mm:ss");
+      case "timestamp":
         return now.format();
       case undefined:
-        return now.format('HH:mm:ss');
+        return now.format("HH:mm:ss");
       default:
         return now.format(mode);
     }
   }
-  
+
   /**
-   * Creates event packet
-   * @param {string} eventName
-   * @param {'subscribe'|'unsubscribe'} eventPurpose
-   * @returns {Object}
+   * ScriptBridge向け "event" 用パケットビルダー (参考用)
    */
-  static eventBuilder(eventName, eventPurpose = 'subscribe') {
+  static eventBuilder(eventName, eventPurpose = "subscribe") {
     return {
-      "header": {
-        "requestId": randomUUID(),
-        "messagePurpose": eventPurpose,
-        "version": 1,
-        "messageType": "commandRequest"
+      header: {
+        requestId: randomUUID(),
+        messagePurpose: eventPurpose,
+        version: 1,
+        messageType: "commandRequest",
       },
-      "body": {
-        "eventName": eventName
-      }
+      body: {
+        eventName,
+      },
     };
   }
-  
+
   /**
-   * Creates command packet
-   * @param {string} cmd
-   * @param {import('../../typings/types').VersionResolvable} [commandVersion]
-   * @returns {Object}
+   * コマンドパケット生成
    */
-   static commandBuilder(cmd, commandVersion = 1) {
+  static commandBuilder(cmd, commandVersion = 1) {
     return {
       header: {
         requestId: randomUUID(),
         messagePurpose: "commandRequest",
         version: 1,
-        messageType: "commandRequest"
+        messageType: "commandRequest",
       },
       body: {
-        origin: {
-          type: "player"
-        },
+        origin: { type: "player" },
         commandLine: cmd,
-        version: commandVersion
-      }
+        version: commandVersion,
+      },
     };
   }
-  
-  /**
-   * splits string nicely (ignore ' and ")
-   * @param {string} str
-   * @returns {string[]}
-   */
-  static splitNicely(str) {
-    let split = str.split(/(?<!['"]\w+) +(?!\w+['"])/);
-    return split.map(x => x.replace(/^"(.*)"$/g, '$1'));
-  }
-  
-  /**
-   * 
-   * @param {number[]} numbers
-   * @returns {number}
-   */
+
   static median(numbers) {
+    if (!numbers.length) return 0;
     const half = (numbers.length / 2) | 0;
-    const arr = numbers.slice().sort((a,b) =>  a - b);
-    return (arr.length % 2 ? arr[half] : (arr[half-1] + arr[half]) / 2) || 0;
+    const sorted = [...numbers].sort((a, b) => a - b);
+    if (sorted.length % 2) return sorted[half];
+    return (sorted[half - 1] + sorted[half]) / 2;
   }
-  
-  /**
-   * 
-   * @param {number[]} numbers
-   * @returns {number}
-   */
+
   static average(numbers) {
-    return (numbers.reduce((a,b) => a + b, 0) / numbers.length) || 0;
+    if (!numbers.length) return 0;
+    return numbers.reduce((a, b) => a + b, 0) / numbers.length;
   }
-  
-  static commandString(str) {
-    return str ? `"${str}"` : '';
-  }
-  
-  static sleep(ms) {
-   return new Promise(res => setTimeout(res, ms));
- }
 }
 
 module.exports = Util;

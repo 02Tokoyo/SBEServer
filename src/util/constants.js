@@ -1,1 +1,2 @@
-exports.version = '1.2.3';
+// src/util/constants.js
+exports.version = "1.0.0-scriptbridge";
